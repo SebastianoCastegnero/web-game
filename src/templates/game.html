@@ -9,6 +9,9 @@ Please guess the secret word: <br/>
 <form action="/make_a_guess" method="POST">
     <input type="text" name="guessed_word" required />
     <input type="submit"/>
+
+    <img src="/image?item_id={{ session['secret_item_id'] }}" style="max-height:800px;max-width:800px;height:auto;width:auto;">
+    
 </form>
 
 {% endblock %}

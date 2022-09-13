@@ -1,28 +1,30 @@
 import random
-from typing import Optional
+from dataclasses import dataclass
+
+@dataclass(frozen=True)  # 'frozen' makes it immutable - always good by default
+class StorageItem:
+    image_bytes: bytes
+    image_content_type: str
+    secret_word: str  # now only contains a secret word, but later we'll add an image here!
 
 class InMemoryStorage:
     def __init__(self):
-        self.storage = []
+        self.storage: list[StorageItem] = []
 
-    def add_word(self, secret_word: str) -> None:
-        """ Store a secret word."""
-        self.storage.append(secret_word)
+    def add(self, item: StorageItem) -> None:
+        self.storage.append(item)
 
-    def get_all_words(self):
-        """ Get all words saved so far. """
-        return self.storage
-    
-    def get_random_word_index(self) -> Optional[int]:
-        """ Get an index of a random secret word."""
-        if not self.storage:
-            return None  # no words saved - nothing to return
+    def get_all_secrets(self) -> list[str]:
+        return [item.secret_word for item in self.storage]
+
+    def has_index(self, index: int) -> bool:
+        return 0 <= index < len(self.storage)
+
+    def get_random_item_index(self) -> int:  # raises exception if empty
         return random.randint(0, len(self.storage) - 1)
 
-    def get_word_by_index(self, index: int) -> Optional[str]:
-        """
-        Given the index in the storage, return the secret word by this index.
-        """
-        if not (0 <= index < len(self.storage)):
-            return None  # index out of range - nothing to return
+    def get_item_by_index(self, index: int) -> StorageItem:  # raises exception if empty
         return self.storage[index]
+
+    def is_empty(self) -> bool:
+        return not self.storage
