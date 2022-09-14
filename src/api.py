@@ -65,17 +65,14 @@ def upload_word():
 
 @app.route('/game', methods=['GET'])
 def game():
-    word_id = None
     
     if 'secret_item_id' in session:
         if database.has_index(session['secret_item_id']):
-            word_id = database.get_random_item_index()
             return render_template('game.html')
 
-    if word_id is None:
         flash("No words uploaded yet! Please upload at least one word to start guessing")
         return redirect("/")
-
+    word_id = database.get_random_item_index()
     session['secret_item_id'] = word_id
     return render_template('game.html')
 
