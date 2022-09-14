@@ -43,24 +43,15 @@ def upload_image():
 def words():
     return render_template('words.html')
 
-
-# browsers send POST request when submitting a form
 @app.route('/upload_word', methods=['POST'])
 def upload_word():
-    # request.form is a special variable in Flask that will contain the form data
-    # note the "name" attribute of the <input> we have in HTML
-
-    # - get the word form request.form['secretWord'] aka word space
     secret_word = request.form['secretWord']
-    # - upload on the database
     image_file = request.files['image']
     image_bytes = image_file.stream.read()
     image_content_type = image_file.content_type
     database.add(StorageItem(image_bytes=image_bytes, image_content_type=image_content_type, secret_word=secret_word))
-    # - write the uploaded word on the website
     flash("Uploaded word " + repr(secret_word))
-    # - redirect back to the main page
-    return redirect('/')  # redirect back to the main page
+    return redirect('/')
 
 
 @app.route('/game', methods=['GET'])
