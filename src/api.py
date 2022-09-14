@@ -64,12 +64,10 @@ def upload_word():
 
 
 @app.route('/game', methods=['GET'])
-def game():
-    
+def game():  
     if 'secret_item_id' in session:
         if database.has_index(session['secret_item_id']):
             return render_template('game.html')
-
         flash("No words uploaded yet! Please upload at least one word to start guessing")
         return redirect("/")
     if database.is_empty():
