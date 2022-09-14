@@ -72,6 +72,9 @@ def game():
 
         flash("No words uploaded yet! Please upload at least one word to start guessing")
         return redirect("/")
+    if database.is_empty():
+        flash("No words uploaded yet! Please upload at least one word to start guessing")
+        return redirect("/")
     word_id = database.get_random_item_index()
     session['secret_item_id'] = word_id
     return render_template('game.html')
