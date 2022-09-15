@@ -1,13 +1,13 @@
-from flask import Response
 from flask import redirect, request
 from flask import session, Markup
 from flask import Flask, render_template
 from flask import flash
 from src.in_memory_storage import InMemoryStorage
 from src.in_memory_storage import StorageItem
+from src.blob_storage import BlobStorage
 
 database = InMemoryStorage()
-
+blobStorage = BlobStorage()
 
 app = Flask(__name__)
 # This key guarantees security of the sessions, and must be kept secret.
@@ -49,7 +49,8 @@ def upload_word():
     image_file = request.files['image']
     image_bytes = image_file.stream.read()
     image_content_type = image_file.content_type
-    database.add(StorageItem(image_bytes=image_bytes, image_content_type=image_content_type, secret_word=secret_word))
+    imageurl = blobStorage.upload_image(image_bytes=image_bytes, content_type=image_content_type)
+    database.add(StorageItem(image_url=imageurl, secret_word=secret_word))
     flash("Uploaded word " + repr(secret_word))
     return redirect('/')
 
@@ -90,4 +91,4 @@ def make_a_guess():
 def get_image():
     item_id = int(request.args['item_id'])
     item = database.get_item_by_index(item_id)
-    return Response(item.image_bytes, mimetype=item.image_content_type)
+    return redirect(item.image_url, code=302)
