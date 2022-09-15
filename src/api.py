@@ -2,12 +2,14 @@ from flask import redirect, request
 from flask import session, Markup
 from flask import Flask, render_template
 from flask import flash
+from cosmos_storage import CosmosStorage
 from src.database.in_memory_storage import InMemoryStorage
 from src.database.storage_item import StorageItem
-from src.blob_storage import BlobStorage
+from src.database.blob_storage import BlobStorage
 
 database = InMemoryStorage()
 blobStorage = BlobStorage()
+cosmosdb = CosmosStorage.from_env()
 
 app = Flask(__name__)
 # This key guarantees security of the sessions, and must be kept secret.
@@ -50,7 +52,7 @@ def upload_word():
     image_bytes = image_file.stream.read()
     image_content_type = image_file.content_type
     imageurl = blobStorage.upload_image(image_bytes=image_bytes, content_type=image_content_type)
-    database.add(StorageItem(image_url=imageurl, secret_word=secret_word))
+    cosmosdb.add(StorageItem(image_url=imageurl, secret_word=secret_word))
     flash("Uploaded word " + repr(secret_word))
     return redirect('/')
 
@@ -58,14 +60,14 @@ def upload_word():
 @app.route('/game', methods=['GET'])
 def game():  
     if 'secret_item_id' in session:
-        if database.has_index(session['secret_item_id']):
+        if cosmosdb.has_index(session['secret_item_id']):
             return render_template('game.html')
         flash("No words uploaded yet! Please upload at least one word to start guessing")
         return redirect("/")
-    if database.is_empty():
+    if cosmosdb.is_empty():
         flash("No words uploaded yet! Please upload at least one word to start guessing")
         return redirect("/")
-    word_id = database.get_random_item_index()
+    word_id = cosmosdb.get_random_item_index()
     session['secret_item_id'] = word_id
     return render_template('game.html')
 
@@ -77,7 +79,7 @@ def make_a_guess():
         return redirect('/game')
 
     word_id = session['secret_item_id']
-    secret_word = database.get_item_by_index(word_id)
+    secret_word = cosmosdb.get_item_by_index(word_id)
 
     if request.form['guessed_word'] == secret_word.secret_word:
         flash(Markup("You guessed right! Good job! The secret word was <b>%s</b>" % secret_word.secret_word))
@@ -89,6 +91,6 @@ def make_a_guess():
 
 @app.route('/image', methods=['GET'])
 def get_image():
-    item_id = int(request.args['item_id'])
-    item = database.get_item_by_index(item_id)
+    item_id = request.args['item_id']
+    item = cosmosdb.get_item_by_index(item_id)
     return redirect(item.image_url, code=302)

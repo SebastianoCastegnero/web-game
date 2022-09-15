@@ -38,10 +38,10 @@ class CosmosStorage:
     def from_env(cls):
         """ Create storage from environment variables """
         return cls.from_parameters(
-            account_endpoint=os.environ["https://scwebgame.documents.azure.com:443/"],
-            account_key=os.environ["GL0dFGbgliQ7PBxSlWzeMUwdO6d15owyQZ7P7G5RAFgD9XVu9MalccFZNQAg2ezJzBSetf80ngSZpJhesYYd1Q=="],
-            db_name=os.environ["scwebgame_cdb"],
-            container_name=os.environ["scwebgame_cdb_env"],
+            account_endpoint=os.environ["COSMOS_ACCOUNT_ENDPOINT"],
+            account_key=os.environ["COSMOS_ACCOUNT_KEY"],
+            db_name=os.environ["COSMOS_DB_NAME"],
+            container_name=os.environ["COSMOS_CONTAINER_NAME"],
         )
     def add(self, item: StorageItem) -> str:
         """

@@ -2,3 +2,4 @@ flask
 pytest
 azure-storage-blob
 azure-cosmos
+python-dotenv
