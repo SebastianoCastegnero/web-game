@@ -2,8 +2,8 @@ from flask import redirect, request
 from flask import session, Markup
 from flask import Flask, render_template
 from flask import flash
-from src.in_memory_storage import InMemoryStorage
-from src.in_memory_storage import StorageItem
+from src.database.in_memory_storage import InMemoryStorage
+from src.database.storage_item import StorageItem
 from src.blob_storage import BlobStorage
 
 database = InMemoryStorage()
